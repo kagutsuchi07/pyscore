@@ -11,6 +11,6 @@ Usage
 .. code-block:: pycon
 
     >>> import pyscore
-    >>> pyscore.listMatches
+    >>> pyscore.listMatches()
     [('team1', 'team2'), ('teamA', 'teamB')]
     ...
