@@ -24,3 +24,25 @@ def insert_values():
 
         nr_match +=1
     db.close()
+    
+def update_values():
+    
+    nr_round = 0
+    nr_match = 1
+
+    for value in pattern_update:
+        score = value[3]
+    
+        FT = value[2]
+        FTS = score[0]
+        ST = value[4]
+        STS = score[2]
+    
+        if (nr_match - 1) % 10 == 0:
+            nr_round += 1
+        
+        db.execute("UPDATE PremierLeague SET FT_Score = %s, ST_Score = %s", FTS, STS)
+
+        nr_match += 1
+ 
+    db.close()
