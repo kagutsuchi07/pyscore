@@ -6,6 +6,7 @@ import torndb
 
 
 def insert_values():
+    """Inserts all fixtures into database."""
 
     db = torndb.Connection('db4free.net', 'pyscore', 'login', 'pwd')
     rc = requests.get('http://www.bukmacherzy.com/liga_angielska/terminarz/').content
@@ -29,6 +30,7 @@ def insert_values():
 
 
 def update_values():
+    """Updates results in database."""
 
     db = torndb.Connection('db4free.net', 'pyscore', 'login', 'pwd')
     rc = requests.get('http://www.bukmacherzy.com/liga_angielska/terminarz/').content
