@@ -50,8 +50,7 @@ def update_values():
         if (nr_match - 1) % 10 == 0:
             nr_round += 1
 
-        db_check = db.query("SELECT Fixture, FT_Score, ST_Score FROM PremierLeague WHERE 1")
-        db_values = db_check[nr_match]
+        db_values = db.get("SELECT Fixture, FT_Score, ST_Score FROM PremierLeague WHERE Fixture=%s", nr_match)
 
         dbFTS = db_values['FT_Score']
         dbSTS = db_values['ST_Score']
