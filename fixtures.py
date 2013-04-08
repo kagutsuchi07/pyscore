@@ -4,6 +4,7 @@ import torndb
 
 # DATABASE VALUES (Fixture, Round, First_Team, FT_Score, Second_Team, ST_Score, Date(y-m-d 16:00:00)
 
+
 def insert_values():
 
     db = torndb.Connection('db4free.net', 'pyscore', 'login', 'pwd')
@@ -22,9 +23,10 @@ def insert_values():
 
         db.execute("INSERT INTO PremierLeague VALUES(%s, %s, %s, NULL, %s, NULL, NULL)", nr_match, nr_round, FT, ST)
         print nr_match, nr_round, FT, 'NULL', ST, 'NULL', 'NULL'
-        
-        nr_match +=1
+
+        nr_match += 1
     db.close()
+
 
 def update_values():
 
@@ -37,18 +39,18 @@ def update_values():
 
     for value in pattern_update:
         score = value[3]
-    
+
         FT = value[2]
         FTS = score[0]
         ST = value[4]
         STS = score[2]
-    
+
         if (nr_match - 1) % 10 == 0:
             nr_round += 1
 
-        db_check = db.query("SELECT Fixture, FT_Score, ST_Score FROM PremierLeague WHERE 1") 
+        db_check = db.query("SELECT Fixture, FT_Score, ST_Score FROM PremierLeague WHERE 1")
         db_values = db_check[nr_match]
-        
+
         dbFTS = db_values['FT_Score']
         dbSTS = db_values['ST_Score']
 
