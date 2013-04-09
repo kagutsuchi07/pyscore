@@ -10,7 +10,7 @@ def insert_values():
 
     db = torndb.Connection('db4free.net', 'pyscore', 'login', 'pwd')
     rc = requests.get('http://www.bukmacherzy.com/liga_angielska/terminarz/').content
-    pattern_create = re.findall('<div class="data">(.+)</div><div class="godzina">(.+)</div> .+ title="Typy .+\-.+">(.+) \- (.+?)</a>', rc)
+    pattern_create = re.findall('<div class="data">(.+)</div><div class="godzina">(.+)</div> .+ title="Typy (.+)\-(.+)">', rc)
 
     nr_round = 0
     nr_match = 1
