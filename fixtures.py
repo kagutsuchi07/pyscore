@@ -10,20 +10,20 @@ def insert_values():
 
     db = torndb.Connection('db4free.net', 'pyscore', 'login', 'pwd')
     rc = requests.get('http://www.bukmacherzy.com/liga_angielska/terminarz/').content
-    pattern_create = re.findall('<div class="data">(.+)</div><div class="godzina">(.+)</div> .+ title="Typy (.+)\-(.+)">', rc)
+    pattern_create = re.findall('</div> .+ title="Typy (.+)\-(.+)">', rc)
 
     nr_round = 0
     nr_match = 1
 
     for value in pattern_create:
-        FT = value[2]
-        ST = value[3]
+        ft = value[0]
+        st = value[1]
 
         if (nr_match - 1) % 10 == 0:
             nr_round += 1
 
-        db.execute("INSERT INTO PremierLeague VALUES(%s, %s, %s, NULL, %s, NULL, NULL)", nr_match, nr_round, FT, ST)
-        print nr_match, nr_round, FT, 'NULL', ST, 'NULL', 'NULL'
+        db.execute("INSERT INTO PremierLeague VALUES(%s, %s, %s, NULL, %s, NULL, NULL)", nr_match, nr_round, ft, st)
+        print nr_match, nr_round, ft, 'NULL', st, 'NULL', 'NULL'
 
         nr_match += 1
     db.close()
