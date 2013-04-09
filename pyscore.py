@@ -19,15 +19,17 @@ __version__ = '0.0.1'
 
 from docopt import docopt
 
-from fixtures import insert_values, update_values
+from fixtures import getFixtures, getResults, dbInsertFixtures, dbUpdateResults
 
 
 def insert():
-    insert_values()
+    fixtures = getFixtures()
+    dbInsertFixtures(fixtures)
 
 
 def update():
-    update_values()
+    results = getResults()
+    dbUpdateResults(results)
 
 
 if __name__ == '__main__':
