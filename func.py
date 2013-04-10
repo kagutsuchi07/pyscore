@@ -46,7 +46,7 @@ def new_player(player_name):
 def player_to_tournament(player_name, tournament_name):
     """Add player to tournament"""
 
-    db = torndb.Connection('db4free.net', db_database, db_user, db_pass)
+    db = torndb.Connection(db_host, db_database, db_user, db_pass)
 
     db.execute("INSERT INTO %s (Player) VALUES %s", tournament_name, player_name)
     db.close()
