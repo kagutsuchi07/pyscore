@@ -11,10 +11,14 @@ def new_tournament(tournament_name):
 
     db = torndb.Connection(db_host, db_database, db_user, db_pass)
 
-    create_tournament = db.execute("IF (EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'pyscore' AND  TABLE_NAME = '%s')) \
-                                    BEGIN CREATE TABLE %s (ID TINYINT(2) UNSIGNED AUTO_INCREMENT PRIMARY KEY, Player VARCHAR(20), Points SMALLINT(3) UNSIGNED NULL) END", tournament_name)
+    db.execute('''CREATE TABLE IF NOT EXISTS %s (
+        ID TINYINT(2) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        Player VARCHAR(20),
+        Points SMALLINT(3) UNSIGNED NULL
+    )''', tournament_name)
+
     db.close()
-    print "Created new tournment ", tournment_name
+    print "Created new tournment ", tournament_name
 
 
 def new_player(player_name):
@@ -25,9 +29,16 @@ def new_player(player_name):
 
     db = torndb.Connection(db_host, db_database, db_user, db_pass)
 
-    create_player = db.execute("IF (EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'pyscore' AND  TABLE_NAME = '%s')) \
-                                BEGIN CREATE TABLE %s (ID SMALLINT(4) UNSIGNED AUTO_INCREMENT PRIMARY KEY, League VARCHAR(20) INDEX, Home_Team VARCHAR(20) INDEX, \
-                                HT_Score TINYINT(2) UNSIGNED, Away_Team VARCHAR(20) INDEX, AT_Score TINYINT(2) UNSIGNED, Match_Date DATETIME) END", player_name)
+    db.execute('''CREATE TABLE IF NOT EXISTS %s (
+        ID SMALLINT(4) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        League VARCHAR(20) INDEX,
+        Home_Team VARCHAR(20) INDEX,
+        HT_Score TINYINT(2) UNSIGNED,
+        Away_Team VARCHAR(20) INDEX,
+        AT_Score TINYINT(2) UNSIGNED,
+        Match_Date DATETIME
+    )''', player_name)
+
     db.close()
     print "Created new player ", player_name
 
@@ -87,7 +98,7 @@ def update_points(player_name, tournament_name):
     check_score(player_name)
     db = torndb.Connection(db_host, db_database, db_user, db_pass)
 
-    db.execute("UPDATE %s SET Points = %s WHERE Player = %s", tournment_name, player_points, player_name)
+    db.execute("UPDATE %s SET Points = %s WHERE Player = %s", tournament_name, player_points, player_name)
     db.close()
     print "Updated player ", player_name, "points: ", player_points
 
