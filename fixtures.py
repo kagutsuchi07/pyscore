@@ -2,6 +2,8 @@ import requests
 import re
 import torndb
 
+from config import db_host, db_database, db_user, db_pass
+
 # DATABASE VALUES (Fixture, Round, First_Team, FT_Score, Second_Team, ST_Score, Date(y-m-d 16:00:00)
 
 
@@ -11,7 +13,7 @@ def dbInsertFixtures(fixtures):
 
     :param fixtures: List of fixtures.
     """
-    db = torndb.Connection('db4free.net', 'pyscore', 'login', 'pwd')
+    db = torndb.Connection(db_host, db_database, db_user, db_pass)
 
     for fixture in fixtures:
         db.execute("INSERT INTO PremierLeague VALUES(%s, %s, %s, NULL, %s, NULL, NULL)", fixture['nr_match'], fixture['nr_round'], fixture['ft'], fixture['st'])
@@ -25,7 +27,7 @@ def dbUpdateResults(results):
 
     :param results: List of results.
     """
-    db = torndb.Connection('db4free.net', 'pyscore', 'login', 'pwd')
+    db = torndb.Connection(db_host, db_database, db_user, db_pass)
 
     for result in results:
         db_values = db.get("SELECT Fixture, FT_Score, ST_Score FROM PremierLeague WHERE Fixture=%s", result['nr_match'])
