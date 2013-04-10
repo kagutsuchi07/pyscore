@@ -1,5 +1,6 @@
 import torndb
 
+
 def new_tournament(tournament_name):
     """
     Creates new table where will be kept players and their points
@@ -38,7 +39,7 @@ def player_to_tournament(player_name, tournament_name):
     db.close()
     print "Added ", player_name, 'into ', tournament_name
 
-    
+
 def check_score(player_name, league_name):
     """Check if all user typed scores are equal to actual scores and returns user points"""
 
@@ -74,13 +75,13 @@ def check_score(player_name, league_name):
         elif (p_fts == p_sts and fts == sts):
             player_points += 1
             print home, away, 'You got the draw right. 1 point'
-    db.close()    
+    db.close()
     return player_points
 
 
 def update_points(player_name, tournament_name):
     """Updates player points in tournament table"""
-    
+
     check_score(player_name)
     db = torndb.Connection('db4free.net', 'pyscore', 'login', 'pwd')
 
@@ -98,7 +99,7 @@ def add_scores(player_name):
     Here you will chose what league you want to type
 
     print all leagues
-    
+
     then you will chose which round you want to type
 
     print all rounds
@@ -108,7 +109,7 @@ def add_scores(player_name):
     print all matches
 
     finally you choose match and insert types
-    
+
     print home_team
     print away_team
 
@@ -126,15 +127,15 @@ def add_scores(player_name):
     Fulham - Norwich 2012-08-18 16:00:00
     Arsenal - Sunderland 2012-08-18 16:00:00
     ...
-    Wigan - Chelsea 2012-08-19 
+    Wigan - Chelsea 2012-08-19
 
     Premier League Round 1 Fulham - Norwich 2012-08-18 16:00:00
     set score for Fulham: 5
     set score for Norwich: 0
     """
 
-    db.execute("INSERT INTO %s (League, Home_Team, HT_Score, Away_Team, AT_Score, Match_Date) /
-                VALUES(%s, %s, %s, %s, %s, %s)", player_name, league, home_team, ht_score, away_team, at_score, match_date")
+    db.execute("INSERT INTO %s (League, Home_Team, HT_Score, Away_Team, AT_Score, Match_Date) \
+                VALUES(%s, %s, %s, %s, %s, %s)", player_name, league, home_team, ht_score, away_team, at_score, match_date)
 
     print 'Added type:', league, home_team, ht_score, away_team, at_score, match_date
 
