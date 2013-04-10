@@ -71,7 +71,7 @@ def check_score(player_name, league_name):
         elif (p_fts < p_sts and fts < sts):
             player_points += 1
             print home, away, 'You got the winner right. 1 point'
-        elif (pfts == p_sts and fts == sts):
+        elif (p_fts == p_sts and fts == sts):
             player_points += 1
             print home, away, 'You got the draw right. 1 point'
     db.close()    
