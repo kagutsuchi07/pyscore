@@ -87,3 +87,55 @@ def update_points(player_name, tournament_name):
     db.execute("UPDATE %s SET Points = %s WHERE Player = %s", tournment_name, player_points, player_name)
     db.close()
     print "Updated player ", player_name, "points: ", player_points
+
+
+def add_scores(player_name):
+    """Adds types into players table"""
+
+    db = torndb.Connection('db4free.net', 'pyscore', 'login', 'pwd')
+
+    """
+    Here you will chose what league you want to type
+
+    print all leagues
+    
+    then you will chose which round you want to type
+
+    print all rounds
+
+    then you will chose what match you want to type
+
+    print all matches
+
+    finally you choose match and insert types
+    
+    print home_team
+    print away_team
+
+    example:
+
+    Premier League
+    Premiera Division
+    ...
+
+    Premier League
+    Round 1
+    Round 2
+    ...
+
+    Fulham - Norwich 2012-08-18 16:00:00
+    Arsenal - Sunderland 2012-08-18 16:00:00
+    ...
+    Wigan - Chelsea 2012-08-19 
+
+    Premier League Round 1 Fulham - Norwich 2012-08-18 16:00:00
+    set score for Fulham: 5
+    set score for Norwich: 0
+    """
+
+    db.execute("INSERT INTO %s (League, Home_Team, HT_Score, Away_Team, AT_Score, Match_Date) /
+                VALUES(%s, %s, %s, %s, %s, %s)", player_name, league, home_team, ht_score, away_team, at_score, match_date")
+
+    print 'Added type:', league, home_team, ht_score, away_team, at_score, match_date
+
+    db.close()
