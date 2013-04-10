@@ -85,9 +85,9 @@ def getResults():
         result = {
             'nr_match': nr_match,
             'ft': value[2],
-            'fts': value[3][0],
+            'fts': int(value[3][0]),
             'st': value[4],
-            'sts': value[3][2],
+            'sts': int(value[3][2]),
         }
         results.append(result)
 
