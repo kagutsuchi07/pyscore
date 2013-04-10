@@ -7,7 +7,10 @@ import torndb
 
 # === DB
 def dbInsertFixtures(fixtures):
-    """Inserts all fixtures into database."""
+    """Inserts all fixtures into database.
+
+    :param fixtures: List of fixtures.
+    """
     db = torndb.Connection('db4free.net', 'pyscore', 'login', 'pwd')
 
     for fixture in fixtures:
@@ -18,7 +21,10 @@ def dbInsertFixtures(fixtures):
 
 
 def dbUpdateResults(results):
-    """Updates all results in database."""
+    """Updates all results in database.
+
+    :param results: List of results.
+    """
     db = torndb.Connection('db4free.net', 'pyscore', 'login', 'pwd')
 
     for result in results:
@@ -38,7 +44,7 @@ def dbUpdateResults(results):
 
 
 def getFixtures():
-    """Inserts all fixtures into database."""
+    """Returns all fixtures."""
     fixtures = []
     rc = requests.get('http://www.bukmacherzy.com/liga_angielska/terminarz/').content
     pattern_create = re.findall('</div> .+ title="Typy (.+)\-(.+)">', rc)
@@ -64,7 +70,7 @@ def getFixtures():
 
 
 def getResults():
-    """Updates results in database."""
+    """Returns all results."""
     results = []
     rc = requests.get('http://www.bukmacherzy.com/liga_angielska/terminarz/').content
     pattern_update = re.findall('<div class="data">(.+)</div><div class="godzina">(.+)</div> .+ title="Typy .+\-.+">(.+) <strong>(.+?)</strong>(.+?)</a>', rc)
@@ -79,9 +85,9 @@ def getResults():
         result = {
             'nr_match': nr_match,
             'ft': value[2],
-            'fts': value[3][0],
+            'fts': int(value[3][0]),
             'st': value[4],
-            'sts': value[3][2],
+            'sts': int(value[3][2]),
         }
         results.append(result)
 
