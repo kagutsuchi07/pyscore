@@ -55,12 +55,15 @@ def check_score(player_name, league_name = PreamierLeague):
         if (p_fts == fts and p_sts == sts):
             player_points += 3
             print home, away, 'Awesome! You got score right! 3 points'
-        elif(p_fts > p_sts and fts > sts):
+        elif (p_fts > p_sts and fts > sts):
             player_points += 1
             print home, away, 'You got the winner right. 1 point'
-        elif(p_fts < p_sts and fts < sts):
+        elif (p_fts < p_sts and fts < sts):
             player_points += 1
             print home, away, 'You got the winner right. 1 point'
+        elif (p_fts == p_sts and fts == sts):
+            player_points += 1
+            print home, away, 'You got the draw right. 1 point'
     db.close()    
     return player_points
 
