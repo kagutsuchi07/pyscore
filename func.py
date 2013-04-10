@@ -9,7 +9,7 @@ def new_tournament(tournament_name):
     db = torndb.Connection('db4free.net', 'pyscore', 'login', 'pwd')
 
     create_tournament = db.execute("IF (EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'pyscore' AND  TABLE_NAME = '%s')) \
-                                    BEGIN CREATE TABLE %s (ID TINYINT(2) AUTO_INCREMENT PRIMARY KEY, Player VARCHAR(20), Points SMALLINT(3) UNSIGNED) END", tournament_name)
+                                    BEGIN CREATE TABLE %s (ID TINYINT(2) UNSIGNED AUTO_INCREMENT PRIMARY KEY, Player VARCHAR(20), Points SMALLINT(3) UNSIGNED NULL) END", tournament_name)
     db.close()
     print "Created new tournment ", tournment_name
 
@@ -23,13 +23,23 @@ def new_player(player_name):
     db = torndb.Connection('db4free.net', 'pyscore', 'login', 'pwd')
 
     create_player = db.execute("IF (EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'pyscore' AND  TABLE_NAME = '%s')) \
-                                BEGIN CREATE TABLE %s (ID SMALLINT(4) AUTO_INCREMENT PRIMARY KEY, League VARCHAR(20) INDEX, Home_Team VARCHAR(20) INDEX, \
+                                BEGIN CREATE TABLE %s (ID SMALLINT(4) UNSIGNED AUTO_INCREMENT PRIMARY KEY, League VARCHAR(20) INDEX, Home_Team VARCHAR(20) INDEX, \
                                 HT_Score TINYINT(2) UNSIGNED, Away_Team VARCHAR(20) INDEX, AT_Score TINYINT(2) UNSIGNED, Match_Date DATETIME) END", player_name)
     db.close()
     print "Created new player ", player_name
 
+
+def player_to_tournament(player_name, tournament_name):
+    """Add player to tournament"""
+
+    db = torndb.Connection('db4free.net', 'pyscore', 'login', 'pwd')
+
+    db.execute("INSERT INTO %s (Player) VALUES %s", tournament_name, player_name)
+    db.close()
+    print "Added ", player_name, 'into ', tournament_name
+
     
-def check_score(player_name, league_name = PreamierLeague):
+def check_score(player_name, league_name):
     """Check if all user typed scores are equal to actual scores and returns user points"""
 
     db = torndb.Connection('db4free.net', 'pyscore', 'login', 'pwd')
@@ -38,12 +48,12 @@ def check_score(player_name, league_name = PreamierLeague):
 
     player_points = 0
 
-    for match in match_id:
+    for teams in match:
 
         home = match['First_Team']
         away = match['Second_Team']
 
-        player_score = db.get("SELECT FT_Score, ST_Score FROM player_name WHERE League =%s First_Team =%s AND Second_Team = %s", league_name home, away)
+        player_score = db.get("SELECT FT_Score, ST_Score FROM player_name WHERE League =%s First_Team =%s AND Second_Team = %s", league_name, home, away)
         actual_score = db.get("SELECT FT_Score, ST_Score FROM league_name WHERE First_Team =%s AND Second_Team = %s", home, away)
 
         p_fts = player_score['FT_Score']
@@ -61,7 +71,7 @@ def check_score(player_name, league_name = PreamierLeague):
         elif (p_fts < p_sts and fts < sts):
             player_points += 1
             print home, away, 'You got the winner right. 1 point'
-        elif (p_fts == p_sts and fts == sts):
+        elif (pfts == p_sts and fts == sts):
             player_points += 1
             print home, away, 'You got the draw right. 1 point'
     db.close()    
@@ -76,4 +86,4 @@ def update_points(player_name, tournament_name):
 
     db.execute("UPDATE %s SET Points = %s WHERE Player = %s", tournment_name, player_points, player_name)
     db.close()
-    print "Updated players ", player_name, "points: ", player_points
+    print "Updated player ", player_name, "points: ", player_points
