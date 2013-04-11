@@ -16,13 +16,13 @@ def dbInsertFixtures(league, fixtures):
     db = torndb.Connection(db_host, db_database, db_user, db_pass)
 
     for fixture in fixtures:
-        db.execute("INSERT INTO %s VALUES(%s, %s, %s, NULL, %s, NULL, NULL)", league, fixture['nr_match'], fixture['nr_round'], fixture['ft'], fixture['st'])
-        print fixture['nr_match'], fixture['nr_round'], fixture['ft'], 'NULL', fixture['st'], 'NULL', 'NULL'
+        db.execute("INSERT INTO %s VALUES(%s, %s, %s, NULL, %s, NULL, %s)", league, fixture['nr_match'], fixture['nr_round'], fixture['ft'], fixture['st'], fixture['md'])
+        print fixture['nr_match'], fixture['nr_round'], fixture['ft'], 'NULL', fixture['st'], fixture['md']
 
     db.close()
 
 
-def dbUpdateResults(results, league):
+def dbUpdateResults(league, results):
     """Updates all results in database.
  
     :param results: List of results.
@@ -37,7 +37,7 @@ def dbUpdateResults(results, league):
         if db_fts == result['fts'] and db_sts == result['sts']:
             print 'OK'
         else:
-            db.execute("UPDATE %s SET FT_Score = %s, ST_Score = %s WHERE First_Team = %s AND Second_Team = %s", league, result['fts'], result['sts'], result['ft'], result['st'])
+            db.execute("UPDATE %s SET FT_Score = %s, ST_Score = %s Match_Date = %s WHERE First_Team = %s AND Second_Team = %s", league, result['fts'], result['sts'], result['ft'], result['md'], result['st'])
  
         print 'Fixture: ', result['nr_match'], "First Team Score: ", result['fts'], 'Second Team Score: ', result['sts'], '...UPDATED'
  
@@ -45,7 +45,7 @@ def dbUpdateResults(results, league):
 # === DB end
 
 
-ddef getFixtures(league, fpr):
+def getFixtures(league, fpr):
     """Returns all fixtures."""
     fixtures = []
 
@@ -57,7 +57,7 @@ ddef getFixtures(league, fpr):
         pattern_league = 'http://www.bukmacherzy.com/ekstraklasa/terminarz/'
         
     rc = requests.get(pattern_league).content
-    pattern_create = re.findall('</div> .+ title="Typy (.+)\-(.+)">', rc)
+    pattern_create = re.findall('<div class="data">(.+)</div><div class="godzina">(.+)</div> .+ title="Typy (.+)\-(.+)">', rc)
 
     nr_round = 0
     nr_match = 1
@@ -66,11 +66,14 @@ ddef getFixtures(league, fpr):
         if (nr_match - 1) % fpr == 0:
             nr_round += 1
 
+        match_date = parse(value[0] + ' ' + value[1])
+
         fixture = {
             'nr_match': nr_match,
             'nr_round': nr_round,
-            'ft': value[0],
-            'st': value[1],
+            'ft': value[2],
+            'st': value[3],
+            'md': match_date,
         }
         fixtures.append(fixture)
 
@@ -91,18 +94,21 @@ def getResults(league):
         pattern_league = 'http://www.bukmacherzy.com/ekstraklasa/terminarz/'
 
     rc = requests.get(pattern_league).content
-    pattern_update = re.findall('<div class="data">(.+)</div><div class="godzina">(.+)</div> .+ title="Typy .+\-.+">(.+) <strong>(.+?)</strong>(.+?)</a>', rc)
+    pattern_update = re.findall('<div class="data">(.+)</div><div class="godzina">(.+)</div> .+ title="Typy (.+)\-(.+)"> .+ <strong>(.+?)</strong>', rc)
  
     nr_match = 1
 
     for value in pattern_update:
- 
+
+        match_date = parse(value[0] + ' ' + value[1])
+
         result = {
-            'nr_match': nr_match,,
+            'nr_match': nr_match,
             'ft': value[2],
-            'fts': int(value[3][0]),
-            'st': value[4],
-            'sts': int(value[3][2]),
+            'fts': int(value[4][0]),
+            'st': value[3],
+            'sts': int(value[4][2]),
+            'md': match_date,
         }
         results.append(result)
  
