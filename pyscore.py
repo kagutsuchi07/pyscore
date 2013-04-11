@@ -6,11 +6,13 @@
 Usage:
     pyscore insert
     pyscore update
+    pyscore --leagues
     pyscore -h | --help | --version
 
 Options:
     -h --help  Show this screen.
     --version  Show version.
+    --leagues  List all avaible leagues.
 
 """
 
@@ -19,59 +21,44 @@ __version__ = '0.0.1'
 
 from docopt import docopt
 
+from config import leagues
 from fixtures import getFixtures, getResults, dbInsertFixtures, dbUpdateResults
 
 
-def insert():
-    print "1) Premier League \n 2) Premiera Division \n 3) Ekstraklasa \n \n 0) Exit \n \n Select League or Exit:"
+def show_leagues():
+    for id in leagues:
+        print '%s. %s' % (id, leagues[id])
+
+
+def menu_choose_league():
+    show_leagues()
     while True:
-        select_league = raw_input()
-        if select_league in (0, 1, 2, 3):
-            break
-        else:
-            print "Unknown Command. Try again"
+        try:
+            id = int(raw_input())
+        except ValueError:
+            print 'Invalid ID. Try again.'
+            continue
 
-    if select_league == 1:
-        league = 'PremierLeague'
-        fpr = 10  # fixtures per round
-    if select_league == 2:
-        league = 'PremieraDivision'
-        fpr = 10
-    if select_league == 3:
-        league = 'Ekstraklasa'
-        fpr = 8
-    if select_league == 0:
-        break
-
-    fixtures = getFixtures(league, fpr)
-    dbInsertFixtures(league, fixtures)
+        if id not in leagues.keys():
+            print 'Unknown ID. Try again.'
+        return leagues[id]
 
 
-def update():
-    print "1) Premier League \n 2) Premiera Division \n 3) Ekstraklasa \n \n 0) Exit \n \n Select League or Exit:"
-    while True:
-        select_league = raw_input()
-        if select_league in (0, 1, 2, 3):
-            break
-        else:
-            print "Unknown Command. Try again"
+def insert(league_name):
+    fixtures = getFixtures(league_name)
+    dbInsertFixtures(league_name, fixtures)
 
-    if select_league == 1:
-        league = 'PremierLeague'
-    if select_league == 2:
-        league = 'PremieraDivision'
-    if select_league == 3:
-        league = 'Ekstraklasa'
-    if select_league == 0:
-        break
 
-    results = getResults(league)
-    dbUpdateResults(league, results)
+def update(league_name):
+    results = getResults(league_name)
+    dbUpdateResults(league_name, results)
 
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, version=__version__)
-    if arguments['update']:
-        update()
+    if arguments['--leagues']:
+        show_leagues()
+    elif arguments['update']:
+        update(menu_choose_league())
     elif arguments['insert']:
-        insert()
+        insert(menu_choose_league())
