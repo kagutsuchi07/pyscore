@@ -8,7 +8,7 @@ from config import db_host, db_database, db_user, db_pass
 
 
 # === DB
-def dbInsertFixtures(fixtures):
+def dbInsertFixtures(league, fixtures):
     """Inserts all fixtures into database.
 
     :param fixtures: List of fixtures.
@@ -16,7 +16,7 @@ def dbInsertFixtures(fixtures):
     db = torndb.Connection(db_host, db_database, db_user, db_pass)
 
     for fixture in fixtures:
-        db.execute("INSERT INTO PremierLeague VALUES(%s, %s, %s, NULL, %s, NULL, NULL)", fixture['nr_match'], fixture['nr_round'], fixture['ft'], fixture['st'])
+        db.execute("INSERT INTO %s VALUES(%s, %s, %s, NULL, %s, NULL, NULL)", league, fixture['nr_match'], fixture['nr_round'], fixture['ft'], fixture['st'])
         print fixture['nr_match'], fixture['nr_round'], fixture['ft'], 'NULL', fixture['st'], 'NULL', 'NULL'
 
     db.close()
@@ -45,17 +45,25 @@ def dbUpdateResults(results, league):
 # === DB end
 
 
-def getFixtures():
+ddef getFixtures(league, fpr):
     """Returns all fixtures."""
     fixtures = []
-    rc = requests.get('http://www.bukmacherzy.com/liga_angielska/terminarz/').content
+
+    if league == 'PremierLeague':
+        pattern_league = 'http://www.bukmacherzy.com/liga_angielska/terminarz/'
+    if league == 'PremieraDivision':
+        pattern_league = 'http://www.bukmacherzy.com/liga_hiszpanska/terminarz/'
+    if league == 'Ekstraklasa':
+        pattern_league = 'http://www.bukmacherzy.com/ekstraklasa/terminarz/'
+        
+    rc = requests.get(pattern_league).content
     pattern_create = re.findall('</div> .+ title="Typy (.+)\-(.+)">', rc)
 
     nr_round = 0
     nr_match = 1
 
     for value in pattern_create:
-        if (nr_match - 1) % 10 == 0:
+        if (nr_match - 1) % fpr == 0:
             nr_round += 1
 
         fixture = {
