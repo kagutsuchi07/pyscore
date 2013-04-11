@@ -22,25 +22,25 @@ def dbInsertFixtures(fixtures):
     db.close()
 
 
-def dbUpdateResults(results):
+def dbUpdateResults(results, league):
     """Updates all results in database.
-
+ 
     :param results: List of results.
     """
     db = torndb.Connection(db_host, db_database, db_user, db_pass)
-
+ 
     for result in results:
-        db_values = db.get("SELECT Fixture, FT_Score, ST_Score FROM PremierLeague WHERE Fixture=%s", result['nr_match'])
+        db_values = db.get("SELECT FT_Score, ST_Score FROM %s WHERE Fixture=%s", league, result['nr_match'])
         db_fts = db_values['FT_Score']
         db_sts = db_values['ST_Score']
-
+ 
         if db_fts == result['fts'] and db_sts == result['sts']:
             print 'OK'
         else:
-            db.execute("UPDATE PremierLeague SET FT_Score = %s, ST_Score = %s WHERE First_Team = %s AND Second_Team = %s", result['fts'], result['sts'], result['ft'], result['st'])
-
+            db.execute("UPDATE %s SET FT_Score = %s, ST_Score = %s WHERE First_Team = %s AND Second_Team = %s", league, result['fts'], result['sts'], result['ft'], result['st'])
+ 
         print 'Fixture: ', result['nr_match'], "First Team Score: ", result['fts'], 'Second Team Score: ', result['sts'], '...UPDATED'
-
+ 
     db.close()
 # === DB end
 
@@ -71,28 +71,33 @@ def getFixtures():
     return fixtures
 
 
-def getResults():
+def getResults(league):
     """Returns all results."""
     results = []
-    rc = requests.get('http://www.bukmacherzy.com/liga_angielska/terminarz/').content
-    pattern_update = re.findall('<div class="data">(.+)</div><div class="godzina">(.+)</div> .+ title="Typy .+\-.+">(.+) <strong>(.+?)</strong>(.+?)</a>', rc)
+ 
+    if league == 'PremierLeague':
+        pattern_league = 'http://www.bukmacherzy.com/liga_angielska/terminarz/'
+    if league == 'PremieraDivision':
+        pattern_league = 'http://www.bukmacherzy.com/liga_hiszpanska/terminarz/'
+    if league == 'Ekstraklasa':
+        pattern_league = 'http://www.bukmacherzy.com/ekstraklasa/terminarz/'
 
-    nr_round = 0
+    rc = requests.get(pattern_league).content
+    pattern_update = re.findall('<div class="data">(.+)</div><div class="godzina">(.+)</div> .+ title="Typy .+\-.+">(.+) <strong>(.+?)</strong>(.+?)</a>', rc)
+ 
     nr_match = 1
 
     for value in pattern_update:
-        if (nr_match - 1) % 10 == 0:
-            nr_round += 1
-
+ 
         result = {
-            'nr_match': nr_match,
+            'nr_match': nr_match,,
             'ft': value[2],
             'fts': int(value[3][0]),
             'st': value[4],
             'sts': int(value[3][2]),
         }
         results.append(result)
-
+ 
         nr_match += 1
-
+ 
     return results
