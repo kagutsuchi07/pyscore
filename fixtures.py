@@ -1,6 +1,7 @@
 import requests
 import re
 import torndb
+from dateutil import parser
 
 from config import db_host, db_database, db_user, db_pass
 
@@ -24,23 +25,23 @@ def dbInsertFixtures(league, fixtures):
 
 def dbUpdateResults(league, results):
     """Updates all results in database.
- 
+
     :param results: List of results.
     """
     db = torndb.Connection(db_host, db_database, db_user, db_pass)
- 
+
     for result in results:
         db_values = db.get("SELECT FT_Score, ST_Score FROM %s WHERE Fixture=%s", league, result['nr_match'])
         db_fts = db_values['FT_Score']
         db_sts = db_values['ST_Score']
- 
+
         if db_fts == result['fts'] and db_sts == result['sts']:
             print 'OK'
         else:
             db.execute("UPDATE %s SET FT_Score = %s, ST_Score = %s Match_Date = %s WHERE First_Team = %s AND Second_Team = %s", league, result['fts'], result['sts'], result['ft'], result['md'], result['st'])
- 
+
         print 'Fixture: ', result['nr_match'], "First Team Score: ", result['fts'], 'Second Team Score: ', result['sts'], '...UPDATED'
- 
+
     db.close()
 # === DB end
 
@@ -55,7 +56,7 @@ def getFixtures(league, fpr):
         pattern_league = 'http://www.bukmacherzy.com/liga_hiszpanska/terminarz/'
     if league == 'Ekstraklasa':
         pattern_league = 'http://www.bukmacherzy.com/ekstraklasa/terminarz/'
-        
+
     rc = requests.get(pattern_league).content
     pattern_create = re.findall('<div class="data">(.+)</div><div class="godzina">(.+)</div> .+ title="Typy (.+)\-(.+)">', rc)
 
@@ -66,7 +67,7 @@ def getFixtures(league, fpr):
         if (nr_match - 1) % fpr == 0:
             nr_round += 1
 
-        match_date = parse(value[0] + ' ' + value[1])
+        match_date = parser.parse(value[0] + ' ' + value[1])
 
         fixture = {
             'nr_match': nr_match,
@@ -85,7 +86,7 @@ def getFixtures(league, fpr):
 def getResults(league):
     """Returns all results."""
     results = []
- 
+
     if league == 'PremierLeague':
         pattern_league = 'http://www.bukmacherzy.com/liga_angielska/terminarz/'
     if league == 'PremieraDivision':
@@ -95,12 +96,12 @@ def getResults(league):
 
     rc = requests.get(pattern_league).content
     pattern_update = re.findall('<div class="data">(.+)</div><div class="godzina">(.+)</div> .+ title="Typy (.+)\-(.+)"> .+ <strong>(.+?)</strong>', rc)
- 
+
     nr_match = 1
 
     for value in pattern_update:
 
-        match_date = parse(value[0] + ' ' + value[1])
+        match_date = parser.parse(value[0] + ' ' + value[1])
 
         result = {
             'nr_match': nr_match,
@@ -111,7 +112,7 @@ def getResults(league):
             'md': match_date,
         }
         results.append(result)
- 
+
         nr_match += 1
- 
+
     return results

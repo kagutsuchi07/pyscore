@@ -24,34 +24,34 @@ from fixtures import getFixtures, getResults, dbInsertFixtures, dbUpdateResults
 
 def insert():
     print "1) Premier League \n 2) Premiera Division \n 3) Ekstraklasa \n \n 0) Exit \n \n Select League or Exit:"
-    while TRUE:
+    while True:
         select_league = raw_input()
-        if selct_league in (0,1,2,3):
+        if select_league in (0, 1, 2, 3):
             break
         else:
             print "Unknown Command. Try again"
 
     if select_league == 1:
         league = 'PremierLeague'
-        fpr = 10 # fixture per round
+        fpr = 10  # fixtures per round
     if select_league == 2:
         league = 'PremieraDivision'
         fpr = 10
     if select_league == 3:
-        league ='Ekstraklasa'
+        league = 'Ekstraklasa'
         fpr = 8
     if select_league == 0:
         break
- 
+
     fixtures = getFixtures(league, fpr)
     dbInsertFixtures(league, fixtures)
 
 
 def update():
     print "1) Premier League \n 2) Premiera Division \n 3) Ekstraklasa \n \n 0) Exit \n \n Select League or Exit:"
-    while TRUE:
+    while True:
         select_league = raw_input()
-        if selct_league in (0,1,2,3):
+        if select_league in (0, 1, 2, 3):
             break
         else:
             print "Unknown Command. Try again"
@@ -61,10 +61,10 @@ def update():
     if select_league == 2:
         league = 'PremieraDivision'
     if select_league == 3:
-        league ='Ekstraklasa'
+        league = 'Ekstraklasa'
     if select_league == 0:
         break
- 
+
     results = getResults(league)
     dbUpdateResults(league, results)
 
