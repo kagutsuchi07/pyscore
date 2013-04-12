@@ -91,7 +91,7 @@ def getResults(league):
         pattern_league = 'http://www.bukmacherzy.com/liga_angielska/terminarz/'
     if league[0] == 'Premiera Division':
         pattern_league = 'http://www.bukmacherzy.com/liga_hiszpanska/terminarz/'
-    if league == 'Ekstraklasa':
+    if league[0] == 'Ekstraklasa':
         pattern_league = 'http://www.bukmacherzy.com/ekstraklasa/terminarz/'
 
     rc = requests.get(pattern_league).content
