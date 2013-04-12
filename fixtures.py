@@ -34,11 +34,13 @@ def dbUpdateResults(league, results):
 
     for result in results:
         db_values = db.get('''SELECT Home_Score, Away_Score FROM Leagues
-            WHERE League = %s AND Season = %s''', league[0], league[1])
+            WHERE League = %s AND Season = %s AND Home_Team = %s AND Away_Team = %s
+            ''', league[0], league[1], result['ht'], result['at'])
+
         db_fts = db_values['Home_Score']
         db_sts = db_values['Away_Score']
- 
-        if db_fts == result['hs'] and db_sts == result['as']:
+        
+        if (db_fts == result['hs'] and db_sts == result['as']):
             print result['ht'], result['at'], 'OK'
         else:
             db.execute('''UPDATE Leagues SET Home_Score = %s, Away_Score = %s Match_Date = %s
