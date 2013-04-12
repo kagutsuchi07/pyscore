@@ -34,7 +34,7 @@ def dbUpdateResults(league, results):
 
     for result in results:
         db_values = db.get('''SELECT Home_Score, Away_Score FROM Leagues
-            WHERE League = %s AND Season = %s"''', league[0], league[1])
+            WHERE League = %s AND Season = %s''', league[0], league[1])
         db_fts = db_values['Home_Score']
         db_sts = db_values['Away_Score']
  
