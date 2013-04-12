@@ -43,7 +43,7 @@ def dbUpdateResults(league, results):
         if (db_fts == result['hs'] and db_sts == result['as']):
             print result['ht'], result['at'], 'OK'
         else:
-            db.execute('''UPDATE Leagues SET Home_Score = %s, Away_Score = %s Match_Date = %s
+            db.execute('''UPDATE Leagues SET Home_Score = %s, Away_Score = %s, Match_Date = %s
                 WHERE League = %s AND Season = %s AND Home_Team = %s AND Away_Team = %s
                 ''', result['hs'], result['as'], result['md'], league[0], league[1], result['ht'], result['at'])
             print result['ht'], result['at'], '...UPDATED'
