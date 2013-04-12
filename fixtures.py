@@ -1,24 +1,26 @@
 import requests
 import re
 import torndb
-from dateutil import parser
 
+from dateutil import parser
 from config import db_host, db_database, db_user, db_pass
 
-# DATABASE VALUES (Fixture, Round, First_Team, FT_Score, Second_Team, ST_Score, Date(y-m-d 16:00:00)
+# DATABASE VALUES (Fixture, Round, First_Team, FT_Score, Second_Team, ST_Score, Match_Date(y-m-d 16:00:00)
 
 
 # === DB
 def dbInsertFixtures(league, fixtures):
     """Inserts all fixtures into database.
 
+    :param league: List with league name and season.
     :param fixtures: List of fixtures.
     """
     db = torndb.Connection(db_host, db_database, db_user, db_pass)
 
     for fixture in fixtures:
-        db.execute("INSERT INTO %s VALUES(%s, %s, %s, NULL, %s, NULL, %s)", league, fixture['nr_match'], fixture['nr_round'], fixture['ft'], fixture['st'], fixture['md'])
-        print fixture['nr_match'], fixture['nr_round'], fixture['ft'], 'NULL', fixture['st'], fixture['md']
+        db.execute('''INSERT INTO Leagues (League, Season, Round, Home_Team, Away_Team, Match_Date)
+            VALUES(%s, %s, %s, %s, %s, %s)''', league[0], league[1], fixture['nr_round'], fixture['ht'], fixture['at'], fixture['md'])
+        print fixture['nr_round'], fixture['ht'], fixture['at'], fixture['md']
 
     db.close()
 
@@ -31,16 +33,18 @@ def dbUpdateResults(league, results):
     db = torndb.Connection(db_host, db_database, db_user, db_pass)
 
     for result in results:
-        db_values = db.get("SELECT FT_Score, ST_Score FROM %s WHERE Fixture=%s", league, result['nr_match'])
-        db_fts = db_values['FT_Score']
-        db_sts = db_values['ST_Score']
-
-        if db_fts == result['fts'] and db_sts == result['sts']:
-            print 'OK'
+        db_values = db.get('''SELECT Home_Score, Away_Score FROM Leagues
+            WHERE League = %s AND Season = %s"''', league[0], league[1])
+        db_fts = db_values['Home_Score']
+        db_sts = db_values['Away_Score']
+ 
+        if db_fts == result['hs'] and db_sts == result['as']:
+            print result['ft'], resutlt['st'], 'OK'
         else:
-            db.execute("UPDATE %s SET FT_Score = %s, ST_Score = %s Match_Date = %s WHERE First_Team = %s AND Second_Team = %s", league, result['fts'], result['sts'], result['ft'], result['md'], result['st'])
-
-        print 'Fixture: ', result['nr_match'], "First Team Score: ", result['fts'], 'Second Team Score: ', result['sts'], '...UPDATED'
+            db.execute('''UPDATE Leagues SET Home_Score = %s, Away_Score = %s Match_Date = %s
+                WHERE League = %s AND Season = %s AND Home_Team = %s AND Away_Team = %s
+                ''', result['hs'], result['as'], result['md'], league[0], league[1], result['ht'], result['at'])
+            print result[ht], result[at], '...UPDATED'
 
     db.close()
 # === DB end
@@ -50,11 +54,11 @@ def getFixtures(league):
     """Returns all fixtures."""
     fixtures = []
 
-    if league == 'PremierLeague':
+    if league[0] == 'Premier League':
         pattern_league = 'http://www.bukmacherzy.com/liga_angielska/terminarz/'
-    if league == 'PremieraDivision':
+    if league[0] == 'Premiera Division':
         pattern_league = 'http://www.bukmacherzy.com/liga_hiszpanska/terminarz/'
-    if league == 'Ekstraklasa':
+    if league[0] == 'Ekstraklasa':
         pattern_league = 'http://www.bukmacherzy.com/ekstraklasa/terminarz/'
 
     rc = requests.get(pattern_league).content
@@ -68,10 +72,9 @@ def getFixtures(league):
     for round in range(1, rounds+1):
         for data in rc[start:end]:
             fixtures.append({
-                'nr_match': match_id,
                 'nr_round': round,
-                'ft': data[2],
-                'st': data[3],
+                'ht': data[2],
+                'at': data[3],
                 'md': parser.parse(data[0] + ' ' + data[1])  # TODO: timezone
             })
             match_id += 1
@@ -83,30 +86,32 @@ def getFixtures(league):
 def getResults(league):
     """Returns all results."""
     results = []
-
-    if league == 'PremierLeague':
+ 
+    if league[0] == 'Premier League':
         pattern_league = 'http://www.bukmacherzy.com/liga_angielska/terminarz/'
-    if league == 'PremieraDivision':
+    if league[0] == 'Premiera Division':
         pattern_league = 'http://www.bukmacherzy.com/liga_hiszpanska/terminarz/'
     if league == 'Ekstraklasa':
         pattern_league = 'http://www.bukmacherzy.com/ekstraklasa/terminarz/'
 
     rc = requests.get(pattern_league).content
-    rc = re.findall('<div class="data">(.+)</div><div class="godzina">(.+)</div> .+ title="Typy (.+)\-(.+)"> .+ <strong>(.+?)</strong>', rc)  # TODO: fix pattern
-
+    pattern_update = re.findall('<div class="data">(.+)</div><div class="godzina">(.+)</div> .+ title="Typy (.+)\-(.+)"> .+ <strong>(.+?)</strong>', rc)
+ 
     nr_match = 1
 
-    for data in rc:
+    for value in pattern_update:
+
+        match_date = parse(value[0] + ' ' + value[1])
+
         result = {
-            'nr_match': nr_match,
-            'ft': data[2],
-            'fts': int(data[4][0]),
-            'st': data[3],
-            'sts': int(data[4][2]),
-            'md': parser.parse(data[0] + ' ' + data[1]),
+            'ht': value[2],
+            'hs': int(value[4][0]),
+            'at': value[3],
+            'as': int(value[4][2]),
+            'md': match_date,
         }
         results.append(result)
-
+ 
         nr_match += 1
-
+ 
     return results
