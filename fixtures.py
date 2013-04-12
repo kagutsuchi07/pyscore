@@ -95,13 +95,11 @@ def getResults(league):
         pattern_league = 'http://www.bukmacherzy.com/ekstraklasa/terminarz/'
 
     rc = requests.get(pattern_league).content
-    pattern_update = re.findall('<div class="data">(.+)</div><div class="godzina">(.+)</div> .+ title="Typy (.+)\-(.+)"> .+ <strong>(.+?)</strong>', rc)
- 
-    nr_match = 1
+    pattern_update = re.findall('<div class="data">(.+)</div><div class="godzina">(.+)</div> .+ title="Typy (.+)\-(.+)">.+?<strong>(.+?)</strong>', rc)
 
     for value in pattern_update:
 
-        match_date = parse(value[0] + ' ' + value[1])
+        match_date = parser.parse(value[0] + ' ' + value[1])
 
         result = {
             'ht': value[2],
@@ -111,7 +109,5 @@ def getResults(league):
             'md': match_date,
         }
         results.append(result)
- 
-        nr_match += 1
- 
+
     return results
