@@ -3,44 +3,40 @@
 
 from fixtures import getFixtures, getResults, dbInsertFixtures, dbUpdateResults
 
-
 def menu():
-
-    print """pyscore version 0.0.1
+    print '''pyscore version 0.0.2
 
 1) Insert
 2) Update
 
 0) Exit
-    """
+    '''
 
-    selct_menu = 0
+    select_menu = 0
 
     while True:
         select_menu = raw_input("Select option or Exit: ")
-        if selct_menu in (0, 1, 2):
+        if select_menu in ('0', '1', '2'):
             break
         else:
             print "Unknown Command. Try again"
 
     if select_menu == '1':
-        insert()
+        menu = 1
+        print 'INSERT'
     elif select_menu == '2':
-        update()
+        menu = 2
+        print 'UPDATE'
     elif select_menu == '0':
         return 0
 
-
-def insert():
-    print """
-INSERT
-
+    print'''
 1) Premier League
 2) Premiera Division
 3) Ekstraklasa
 
 0) Exit to Menu
-    """
+    '''
 
     select_league = 0
 
@@ -52,49 +48,27 @@ INSERT
             print "Unknown Command. Try again"
 
     if select_league == '1':
-        league = 'PremierLeague'
-        fpr = 10  # fixture per round
+        league = ['Premier League', '2012/2013']
     elif select_league == '2':
-        league = 'PremieraDivision'
-        fpr = 10
+        league = ['Premiera Division', '2012/2013']
     elif select_league == '3':
-        league = 'Ekstraklasa'
-        fpr = 8
+        league = ['Ekstraklasa', '2012/2013']
     elif select_league == '0':
         menu()
 
-    fixtures = getFixtures(league, fpr)
+    if menu == 1:
+        insert(league)
+    elif menu == 2: 
+        update(league)
+
+def insert(league):
+
+    fixtures = getFixtures(league)
     dbInsertFixtures(league, fixtures)
 
 
-def update():
-    print """UPDATE
-
-1) Premier League
-2) Premiera Division
-3) Ekstraklasa
-
-0) Exit to Menu
-    """
-
-    select_league = 0
-
-    while True:
-        select_league = raw_input("Select League or Exit: ")
-        if select_league in ('0', '1', '2', '3'):
-            break
-        else:
-            print "Unknown Command. Try again"
-
-    if select_league == '1':
-        league = 'PremierLeague'
-    elif select_league == '2':
-        league = 'PremieraDivision'
-    elif select_league == '3':
-        league = 'Ekstraklasa'
-    elif select_league == '0':
-        menu()
-
+def update(league):
+    
     results = getResults(league)
     dbUpdateResults(results, league)
 
