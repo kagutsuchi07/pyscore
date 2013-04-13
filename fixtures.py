@@ -18,9 +18,13 @@ def dbInsertFixtures(league, fixtures):
     db = torndb.Connection(db_host, db_database, db_user, db_pass)
 
     for fixture in fixtures:
-        db.execute('''INSERT INTO Leagues (League, Season, Round, Home_Team, Away_Team, Match_Date)
-            VALUES(%s, %s, %s, %s, %s, %s)''', league[0], league[1], fixture['nr_round'], fixture['ht'], fixture['at'], fixture['md'])
-        print fixture['nr_round'], fixture['ht'], fixture['at'], fixture['md']
+        try:
+            db.execute('''INSERT INTO Leagues (League, Season, Round, Home_Team, Away_Team, Match_Date)
+                VALUES(%s, %s, %s, %s, %s, %s)''', league[0], league[1], fixture['nr_round'], fixture['ht'], fixture['at'], fixture['md'])
+            print fixture['nr_round'], fixture['ht'], fixture['at'], fixture['md']
+        except:
+            print 'League already exists!'
+            break
 
     db.close()
 
@@ -70,7 +74,6 @@ def getFixtures(league):
 
     start = 0
     end = fpr
-    match_id = 1
     for round in range(1, rounds+1):
         for data in rc[start:end]:
             fixtures.append({
@@ -79,7 +82,6 @@ def getFixtures(league):
                 'at': data[3],
                 'md': parser.parse(data[0] + ' ' + data[1])  # TODO: timezone
             })
-            match_id += 1
         start += fpr
         end += fpr
     return fixtures
