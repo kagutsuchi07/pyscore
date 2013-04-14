@@ -3,14 +3,14 @@
 
 from fixtures import getFixtures, getResults, dbInsertFixtures, dbUpdateResults
 
+
 def menu():
     print '''pyscore version 0.0.2
 
 1) Insert
 2) Update
 
-0) Exit
-    '''
+0) Exit'''
 
     select_menu = 0
 
@@ -30,13 +30,12 @@ def menu():
     elif select_menu == '0':
         return 0
 
-    print'''
+    print '''
 1) Premier League
 2) Premiera Division
 3) Ekstraklasa
 
-0) Exit to Menu
-    '''
+0) Exit to Menu'''
 
     select_league = 0
 
@@ -58,19 +57,19 @@ def menu():
 
     if menu == 1:
         insert(league)
-    elif menu == 2: 
+    elif menu == 2:
         update(league)
 
-def insert(league):
 
+def insert(league):
     fixtures = getFixtures(league)
     dbInsertFixtures(league, fixtures)
 
 
 def update(league):
-    
     results = getResults(league)
     dbUpdateResults(results, league)
 
 
-menu()
+if __name__ == '__main__':
+    menu()

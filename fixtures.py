@@ -22,7 +22,7 @@ def dbInsertFixtures(league, fixtures):
             db.execute('''INSERT INTO Leagues (League, Season, Round, Home_Team, Away_Team, Match_Date)
                 VALUES(%s, %s, %s, %s, %s, %s)''', league[0], league[1], fixture['nr_round'], fixture['ht'], fixture['at'], fixture['md'])
             print fixture['nr_round'], fixture['ht'], fixture['at'], fixture['md']
-        except:
+        except:  # TODO: catch only proper exception
             print 'League already exists!'
             break
 
@@ -32,24 +32,29 @@ def dbInsertFixtures(league, fixtures):
 def dbUpdateResults(league, results):
     """Updates all results in database.
 
+    :param league: List with league name and season.
     :param results: List of results.
     """
     db = torndb.Connection(db_host, db_database, db_user, db_pass)
 
     for result in results:
-        db_values = db.get('''SELECT Home_Score, Away_Score FROM Leagues
-            WHERE League = %s AND Season = %s AND Home_Team = %s AND Away_Team = %s
-            ''', league[0], league[1], result['ht'], result['at'])
+        db_values = db.get(
+            '''SELECT Home_Score, Away_Score FROM Leagues
+            WHERE League = %s AND Season = %s AND Home_Team = %s AND Away_Team = %s''',
+            league[0], league[1], result['ht'], result['at']
+        )
 
         db_fts = db_values['Home_Score']
         db_sts = db_values['Away_Score']
-        
-        if (db_fts == result['hs'] and db_sts == result['as']):
+
+        if db_fts == result['hs'] and db_sts == result['as']:
             print result['ht'], result['at'], 'OK'
         else:
-            db.execute('''UPDATE Leagues SET Home_Score = %s, Away_Score = %s, Match_Date = %s
-                WHERE League = %s AND Season = %s AND Home_Team = %s AND Away_Team = %s
-                ''', result['hs'], result['as'], result['md'], league[0], league[1], result['ht'], result['at'])
+            db.execute(
+                '''UPDATE Leagues SET Home_Score = %s, Away_Score = %s, Match_Date = %s
+                WHERE League = %s AND Season = %s AND Home_Team = %s AND Away_Team = %s''',
+                result['hs'], result['as'], result['md'], league[0], league[1], result['ht'], result['at']
+            )
             print result['ht'], result['at'], '...UPDATED'
 
     db.close()
@@ -57,14 +62,17 @@ def dbUpdateResults(league, results):
 
 
 def getFixtures(league):
-    """Returns all fixtures."""
+    """Returns all fixtures.
+
+    :param league: List with league name and season.
+    """
     fixtures = []
 
     if league[0] == 'Premier League':
         pattern_league = 'http://www.bukmacherzy.com/liga_angielska/terminarz/'
-    if league[0] == 'Premiera Division':
+    elif league[0] == 'Premiera Division':
         pattern_league = 'http://www.bukmacherzy.com/liga_hiszpanska/terminarz/'
-    if league[0] == 'Ekstraklasa':
+    elif league[0] == 'Ekstraklasa':
         pattern_league = 'http://www.bukmacherzy.com/ekstraklasa/terminarz/'
 
     rc = requests.get(pattern_league).content
@@ -88,30 +96,29 @@ def getFixtures(league):
 
 
 def getResults(league):
-    """Returns all results."""
+    """Returns all results.
+
+    :param league: List with league name and season.
+    """
     results = []
- 
+
     if league[0] == 'Premier League':
         pattern_league = 'http://www.bukmacherzy.com/liga_angielska/terminarz/'
-    if league[0] == 'Premiera Division':
+    elif league[0] == 'Premiera Division':
         pattern_league = 'http://www.bukmacherzy.com/liga_hiszpanska/terminarz/'
-    if league[0] == 'Ekstraklasa':
+    elif league[0] == 'Ekstraklasa':
         pattern_league = 'http://www.bukmacherzy.com/ekstraklasa/terminarz/'
 
     rc = requests.get(pattern_league).content
     pattern_update = re.findall('<div class="data">(.+)</div><div class="godzina">(.+)</div> .+ title="Typy (.+)\-(.+)">.+?<strong>(.+?)</strong>', rc)
 
     for value in pattern_update:
-
-        match_date = parser.parse(value[0] + ' ' + value[1])
-
-        result = {
+        results.append({
             'ht': value[2],
             'hs': int(value[4][0]),
             'at': value[3],
             'as': int(value[4][2]),
-            'md': match_date,
-        }
-        results.append(result)
+            'md': parser.parse(value[0] + ' ' + value[1]),
+        })
 
     return results
