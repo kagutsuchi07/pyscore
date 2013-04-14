@@ -18,7 +18,7 @@ def new_tournament(tournament_name):
     )''', tournament_name)
 
     db.close()
-    print "Created new tournment ", tournament_name
+    print "Created new tournment: ", tournament_name
 
 
 def new_player(player_name):
@@ -40,11 +40,11 @@ def new_player(player_name):
     )''', player_name)
 
     db.close()
-    print "Created new player ", player_name
+    print "Created new player: ", player_name
 
 
 def player_to_tournament(player_name, tournament_name):
-    """Add player to tournament"""
+    """Add player to tournament."""
 
     db = torndb.Connection(db_host, db_database, db_user, db_pass)
 
@@ -54,7 +54,7 @@ def player_to_tournament(player_name, tournament_name):
 
 
 def check_score(player_name, league_name):
-    """Check if all user typed scores are equal to actual scores and returns user points"""
+    """Check if all user typed scores are equal to actual scores and returns user points."""
 
     db = torndb.Connection(db_host, db_database, db_user, db_pass)
 
@@ -63,7 +63,6 @@ def check_score(player_name, league_name):
     player_points = 0
 
     for teams in match:
-
         home = match['First_Team']
         away = match['Second_Team']
 
@@ -76,16 +75,13 @@ def check_score(player_name, league_name):
         fts = actual_score['FT_Score']
         sts = actual_score['ST_Score']
 
-        if (p_fts == fts and p_sts == sts):
+        if p_fts == fts and p_sts == sts:
             player_points += 3
             print home, away, 'Awesome! You got score right! 3 points'
-        elif (p_fts > p_sts and fts > sts):
+        elif (p_fts > p_sts and fts > sts) or (p_fts < p_sts and fts < sts):
             player_points += 1
             print home, away, 'You got the winner right. 1 point'
-        elif (p_fts < p_sts and fts < sts):
-            player_points += 1
-            print home, away, 'You got the winner right. 1 point'
-        elif (p_fts == p_sts and fts == sts):
+        elif p_fts == p_sts and fts == sts:
             player_points += 1
             print home, away, 'You got the draw right. 1 point'
     db.close()
@@ -93,7 +89,7 @@ def check_score(player_name, league_name):
 
 
 def update_points(player_name, tournament_name):
-    """Updates player points in tournament table"""
+    """Updates player points in tournament table."""
 
     check_score(player_name)
     db = torndb.Connection(db_host, db_database, db_user, db_pass)
@@ -104,7 +100,7 @@ def update_points(player_name, tournament_name):
 
 
 def add_scores(player_name):
-    """Adds types into players table"""
+    """Adds types into players table."""
 
     db = torndb.Connection(db_host, db_database, db_user, db_pass)
 
